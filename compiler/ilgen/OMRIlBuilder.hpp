@@ -193,6 +193,18 @@ public:
    TR::IlValue *ConvertTo(TR::IlType *t, TR::IlValue *v);
    TR::IlValue *UnsignedConvertTo(TR::IlType *t, TR::IlValue *v);
 
+   /**
+    * @brief Coerce an IlValue to a given type
+    * @param type is the target type of the coercion
+    * @param value is the value to be coerced
+    * @return the IlValue coerced to the specified type
+    *
+    * This service acts as a kind of `reinterpret_cast` for JitBuilder IlValues.
+    * Given some input value, it produces a new value that represents the same
+    * bit pattern as the original one, but with a different type.
+    */
+   TR::IlValue* CoerceTo(TR::IlType* type, TR::IlValue* value);
+
    // memory
    TR::IlValue *CreateLocalArray(int32_t numElements, TR::IlType *elementType);
    TR::IlValue *CreateLocalStruct(TR::IlType *structType);
