@@ -1007,6 +1007,31 @@ IlBuilder::convertTo(TR::IlType *t, TR::IlValue *v, bool needUnsigned)
    return convertedValue;
    }
 
+static TR::ILOpCodes
+getCoercionOpcode(TR::DataType fromType, TR::DataType toType)
+   {
+   if (fromType == TR::Int32 && toType == TR::Float) return TR::ibits2f;
+   else if (fromType == TR::Float && toType == TR::Int32) return TR::fbits2i;
+   else if (fromType == TR::Int64 && toType == TR::Double) return TR::lbits2d;
+   else if (fromType == TR::Double && toType == TR::Int64) return TR::dbits2l;
+   else return TR::BadILOp;
+   }
+
+TR::IlValue*
+IlBuilder::CoerceTo(TR::IlType* t, TR::IlValue* v)
+   {
+   TR::DataType typeFrom = v->getDataType();
+   TR::DataType typeTo = t->getPrimitiveType();
+
+   TR::ILOpCodes coerceOpcode = getCoercionOpcode(typeFrom, typeTo);
+   TR_ASSERT(coerceOpcode != TR::BadILOp, "Builder [ %p ] unknown coercion requested for value %d (TR::DataType %d) to type %s", this, v->getID(), (int)typeFrom, t->getName());
+
+   TR::Node *result = TR::Node::create(coerceOpcode, 1, loadValue(v));
+   TR::IlValue *coercedValue = newValue(t, result);
+   TraceIL("IlBuilder[ %p ]::%d is CoerceTo(%s) %d\n", this, coercedValue->getID(), t->getName(), v->getID());
+   return coercedValue;
+   }
+
 TR::IlValue *
 IlBuilder::unaryOp(TR::ILOpCodes op, TR::IlValue *v)
    {
